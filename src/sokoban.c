@@ -63,16 +63,16 @@ enum BoardElement {
 };
 
 static imenu mainMenu[] = {
-	{ ITEM_HEADER,   0, "Menü", NULL },
+	{ ITEM_HEADER,   0, "@Menu", NULL },
 //	{ ITEM_ACTIVE, 101, "Zug zurück", NULL },
 	{ ITEM_ACTIVE, 102, "Level neu starten", NULL },
 //	{ ITEM_ACTIVE, 103, "Nächster Level", NULL },
 //	{ ITEM_ACTIVE, 104, "Vorheriger Level", NULL },
 	{ ITEM_ACTIVE, 105, "Level-Set öffnen...", NULL },
 //	{ ITEM_ACTIVE, 106, "G-Sensor benutzen", NULL },
-	{ ITEM_ACTIVE, 107, "Hilfe", NULL },
+	{ ITEM_ACTIVE, 107, "@Help", NULL },
 	{ ITEM_ACTIVE, 108, "Über", NULL },
-	{ ITEM_ACTIVE, 109, "Beenden", NULL },
+	{ ITEM_ACTIVE, 109, "@Exit", NULL },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -567,7 +567,7 @@ void Move(int dx, int dy) {
 
 void loadLevel() {
 	FILE *levelFile;
-	if (levelSetFileName != "MiniCosmos" && (levelFile = fopen(levelSetFileName, "rb"))){
+	if (strcmp(levelSetFileName, "MiniCosmos") != 0 && (levelFile = fopen(levelSetFileName, "rb"))){
 		fseek(levelFile, 0, SEEK_END);
   		int fileSize = ftell (levelFile);
   		rewind(levelFile);
@@ -742,8 +742,9 @@ void mainMenuHandler(int index) {
 "Erst, wenn Du einen Level geschafft hast, wird der nächste freigeschaltet. Mit den Pfeil-Tasten des PocketBook kannst Du alle freigeschalteten Level auswählen. Wieviel Level bereits freigeschaltet sind, steht in der Titelzeile in Klammern.",60000);
 		break;
 	case 108:
-		Message(0, "Über PBSokoban V1.2", 
-		"PBSokoban für PocketBook Touch 622\n\n"
+		Message(0, "Über PBSokoban V1.3", 
+		"PBSokoban für PocketBook InkPad 3\n\n"
+		"Angepasst von Oliver Haag, 2019\n"
 		"Angepasst und übersetzt von Ronny Steiner, 2013\n"
 		"Angepasst von Yury P. Fedorchenko, 2011\n"
 		"Entwickelt von Andriy Kvasnytsya, 2009\n\n"
@@ -767,41 +768,41 @@ void ShowMenu() {
 
 void KeyPressed(int key) {
 	switch (key) {
-	/*case KEY_BACK: //removed for use with other models
+	/*case IV_KEY_BACK: //removed for use with other models
 		CloseApp();
 		return;*/
-	case KEY_PLUS:
-	case KEY_NEXT:
+	case IV_KEY_PLUS:
+	case IV_KEY_NEXT:
 		if (levelNo < levels) {
 		    if (levelNo < levelMax) {
 			setLevelNo(levelNo + 1);
 		    }
 		}
 		return;
-	case KEY_MINUS:
-	case KEY_PREV:
+	case IV_KEY_MINUS:
+	case IV_KEY_PREV:
 		if (levelNo > 0) {
 			setLevelNo(levelNo - 1);
 		}
 		return;
-	case KEY_UP:
+	case IV_KEY_UP:
 		Move(0, -1);
 		break;
-	case KEY_DOWN:
+	case IV_KEY_DOWN:
 		Move(0, 1);
 		break;
-	case KEY_LEFT:
+	case IV_KEY_LEFT:
 		Move(-1, 0);
 		break;
-	case KEY_RIGHT:
+	case IV_KEY_RIGHT:
 		Move(1, 0);
 		break;
-	case KEY_OK:
-	//case KEY_PREV:
+	case IV_KEY_OK:
+	//case IV_KEY_PREV:
 		Undo();
 		break;
-	case KEY_MENU:
-	case KEY_BACK:
+	case IV_KEY_MENU:
+	case IV_KEY_BACK:
 		ShowMenu();
 		break;
 	}
@@ -812,6 +813,7 @@ void KeyPressed(int key) {
 int main_handler(int type, int par1, int par2) {
 	int pushret;
 	if (type == EVT_INIT) {
+		SetPanelType(PANEL_DISABLED);
 		font = OpenFont("LiberationSans", 22, 0);
 		fonttitle = OpenFont("LiberationSans", 30, 0);
 		loadLevel();
@@ -827,12 +829,12 @@ int main_handler(int type, int par1, int par2) {
 //		}
 	} else if (type == EVT_SHOW) {
 		DrawBoard();
-	} else if (type == EVT_KEYPRESS && par1 != KEY_OK) {
+	} else if (type == EVT_KEYPRESS && par1 != IV_KEY_OK) {
 		KeyPressed(par1);
-	} else if (type == EVT_KEYREPEAT && par1 == KEY_OK) {
-		KeyPressed(KEY_MENU);
-	} else if (type == EVT_KEYRELEASE && par1 == KEY_OK && par2 == 0) {
-		KeyPressed(KEY_OK);
+	} else if (type == EVT_KEYREPEAT && par1 == IV_KEY_OK) {
+		KeyPressed(IV_KEY_MENU);
+	} else if (type == EVT_KEYRELEASE && par1 == IV_KEY_OK && par2 == 0) {
+		KeyPressed(IV_KEY_OK);
 	} else if (EVT_POINTERDOWN ==type ){
 		pushret=Push(par1,par2);
 		if (pushret == 1) {
